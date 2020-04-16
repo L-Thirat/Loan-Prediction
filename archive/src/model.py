@@ -71,6 +71,13 @@ with open('../pkl/column_list.pickle', 'rb') as f:
 
 
 def test_feature(x, y, func=f_classif):
+    """Check important feature by p-value
+
+    :param x: data
+    :param y: label
+    :param func: feature selection model
+    :return: score table, no important column name
+    """
     f = func(x, y)
     f_table = pd.DataFrame(np.array([list(x.columns), f[0], f[1]]).T,
                            columns=['column_name', 'f_value', 'p_value'])
@@ -82,6 +89,16 @@ def test_feature(x, y, func=f_classif):
 
 def feature_selection(df, label_column=None, col_to_drop_numeric=None, col_to_drop_cat=None, func_numeric=f_classif,
                       func_cat=chi2):
+    """Select feature
+
+    :param df: dataframe
+    :param label_column: label name
+    :param col_to_drop_numeric: drop columns in numeric data
+    :param col_to_drop_cat: drop columns in category data
+    :param func_numeric: numerical function
+    :param func_cat: categorical function
+    :return: data, label, drop columns in numeric data, drop columns in category data
+    """
     if not label_column:
         y = None
     else:
@@ -114,6 +131,15 @@ from sklearn.metrics import classification_report
 
 
 def test_model(model, x_train, x_test, y_train, y_test):
+    """Check model
+
+    :param model: model
+    :param x_train: train data
+    :param x_test: test data
+    :param y_train: train label
+    :param y_test: test label
+    :return: model trained, prediction score
+    """
     model.fit(x_train, y_train)
     yhat = model.predict(x_test)
     result = classification_report(y_test, yhat)
@@ -122,6 +148,12 @@ def test_model(model, x_train, x_test, y_train, y_test):
 
 
 def train_classifier(x, y):
+    """train data
+
+    :param x: data
+    :param y: label
+    :return: model trained, prediction score, data set
+    """
     estim = {'LR': LR(solver='sag', C=0.1, random_state=42, n_jobs=-1),
              'RFC': RFC(n_estimators=50, n_jobs=-1, oob_score=True, min_samples_leaf=10, random_state=42)}
     x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2)
@@ -135,6 +167,13 @@ def train_classifier(x, y):
 
 
 def validate_model(model, x_validate, y_validate):
+    """validate model
+
+    :param model: model
+    :param x_validate: validation data
+    :param y_validate: validation label
+    :return: prediction score
+    """
     yhat = model.predict(x_validate)
     result = classification_report(y_validate, yhat)
     print(result)
@@ -142,6 +181,13 @@ def validate_model(model, x_validate, y_validate):
 
 
 def make_feature_importance_table(model, x, file_name):
+    """create feature importance table
+
+    :param model: model
+    :param x: data
+    :param file_name: file name
+    :return: None
+    """
     feature_importance = pd.DataFrame(np.array([list(x.columns), list(model.feature_importances_)]).T,
                                       columns=['column_name', 'feature_importance'])
     feature_importance['feature_importance'] = feature_importance['feature_importance'].astype(float)

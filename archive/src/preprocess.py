@@ -7,6 +7,11 @@ g_dict = {'1. Selfcured': 1, '2. No Action - Roll': 2, '3. Action - Save': 3, '4
 
 
 def transform_range_day(df):
+    """transform data in column name "Range_day"
+
+    :param df: dataframe
+    :return: dataframe transformed
+    """
     # generate dictionary
     u = df['Range_day'].unique().tolist()
 
@@ -19,30 +24,53 @@ def transform_range_day(df):
 
 
 def transform_group(df):
+    """transform data in column name "group"
+
+    :param df: dataframe
+    :return: dataframe transformed
+    """
     group_label = df['Group'].unique()
     for lab in group_label:
         df = df.replace({'Group': {lab: g_dict[lab]}})
     return df
 
 
-def replace_nan(table):
-    for column in table.columns:
-        ratio = float(table[column].isnull().sum()) / float(table.shape[0])
+def replace_nan(df):
+    """replace null value
+
+    :param df: dataframe
+    :return: dataframe transformed
+    """
+    for column in df.columns:
+        ratio = float(df[column].isnull().sum()) / float(df.shape[0])
         if ratio > 0:
             print(column + ': ', str(ratio))
-            table[column] = table[column].fillna("Unknown")
-        return table
+            df[column] = df[column].fillna("Unknown")
+        return df
 
 
-def parse_dates(s, format=None):
+def parse_dates(series, format=None):
+    """transform date data
+
+    :param series: series data
+    :param format:data format
+    :rtype format: str, optional
+    :return: date series transformed
+    """
     if not format:
-        dates = {date: pd.to_datetime(date) for date in s.unique()}
+        dates = {date: pd.to_datetime(date) for date in series.unique()}
     else:
-        dates = {date: pd.to_datetime(date, format=format) for date in s.unique()}
-    return s.apply(lambda v: dates[v])
+        dates = {date: pd.to_datetime(date, format=format) for date in series.unique()}
+    return series.apply(lambda v: dates[v])
 
 
 def delete_missing_columns(df, ratio=0.95):
+    """drop columns based on threshold of missing value
+
+    :param df: dataframe
+    :param ratio: threshold
+    :return: dataframe
+    """
     total = len(df.index)
     deleted_columns = []
     for column in df.columns:
@@ -55,6 +83,11 @@ def delete_missing_columns(df, ratio=0.95):
 
 
 def delete_single_value_columns(df):
+    """drop single value columns
+
+    :param df: dataframe
+    :return: dataframe
+    """
     drop_columns = []
     for column in list(df.columns):
         if df[column].unique().shape[0] == 1:
@@ -68,6 +101,11 @@ def delete_single_value_columns(df):
 
 
 def delete_excess_columns(df):
+    """drop single excess columns
+
+    :param df: dataframe
+    :return: dataframe
+    """
     drop_columns = []
     for column in list(df.columns):
         if '_y' in column:
@@ -81,6 +119,16 @@ def delete_excess_columns(df):
 
 
 def filter_dates(df0, min_date_train, max_date_train, min_date_test, max_date_test, date_column='FileDate'):
+    """filter data by range of date
+
+    :param df0: dataframe
+    :param min_date_train: min date for train
+    :param max_date_train: max date for train
+    :param min_date_test: min date for test
+    :param max_date_test: max date for test
+    :param date_column: date column
+    :return: train dataframe, test dataframe
+    """
     df = df0.loc[df0[date_column] >= min_date_train]
     df_train = df.loc[df[date_column] < max_date_train]
     df = df0.loc[df0[date_column] >= min_date_test]
@@ -90,6 +138,15 @@ def filter_dates(df0, min_date_train, max_date_train, min_date_test, max_date_te
 
 
 def filter_dates_1(df0, min_date, max_date, date_column='FileDate'):
+    """filter data by column name "FileDate"
+
+    :param df0: dataframe
+    :param min_date: min date
+    :param max_date: max date
+    :param date_column: date column
+    :type date_column: str, optional[Default: 'FileDate']
+    :return: train dataframe
+    """
     df = df0.loc[df0[date_column] >= min_date]
     df_train = df.loc[df[date_column] < max_date]
 

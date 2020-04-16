@@ -3,6 +3,7 @@ import os
 import numpy as np
 from datetime import datetime
 
+# Data tables selection
 table_filename = {  # 'DB_SOC': 'DB_SOC_201510-201610.txt',
     'DB_SOC': 'DB_SOC.txt',
     'ListAction': 'ListAction 201510-201610.txt',
@@ -19,34 +20,23 @@ table_filename = {  # 'DB_SOC': 'DB_SOC_201510-201610.txt',
 
 # training configuration
 
-### Default directories ###
+# # Default directories
 default_class_directory = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 default_data_directory = os.path.join(os.path.dirname(default_class_directory), 'data')
 default_disk_directory = os.path.join(os.path.dirname(default_class_directory), 'disk')
 
-### Current directories ###
+# # Current directories
 class_directory = default_class_directory
 
-### 2016 data ###
+# # data path
 data_directory = os.path.join(default_data_directory, '201510_201610')
 disk_directory = os.path.join(default_disk_directory, '201510_201610')
 
-### 2017 data ###
-# data_directory = os.path.join(default_data_directory, '201701_201707')
-# disk_directory = os.path.join(default_disk_directory, '201701_201707')
-
-### 2016 data ###
+# # data date
 min_date_train = '2016-03-01'
 max_date_train = '2016-08-01'
 min_date_test = '2016-09-01'
 max_date_test = '2016-10-01'
-
-### 2017 data ###
-# min_date_train = '2017-01-01'
-# max_date_train = '2017-05-03' # MAX DB_SOC[FileDate]
-# min_date_test = '2017-05-03' # MAX DB_SOC[FileDate]
-# max_date_test = '2017-07-01'
-# except_pp = '201706' #fol test FileDate mm
 
 min_date_train = datetime.strptime(min_date_train, '%Y-%m-%d')
 max_date_train = datetime.strptime(max_date_train, '%Y-%m-%d')
@@ -58,6 +48,9 @@ test_label = datetime.strftime(min_date_test, '%Y%m') + '_' + datetime.strftime(
 
 
 class dsproject:
+    """Project management
+
+    """
     class_directory = ''
     data_directory = ''
     disk_directory = ''
@@ -78,15 +71,30 @@ class dsproject:
         self.directories['meta'] = os.path.join(self.disk_directory, 'meta')
 
     def gen_directories(self):
+        """Generate project directories
+
+        :return: None
+        """
         dirnames = ['preprocess', 'feature', 'target', 'output', 'meta']
         for d in dirnames:
             self.gen_directory(d)
 
     def gen_directory(self, dirname):
+        """Generate directory
+
+        :param dirname: directory name
+        :return: None
+        """
         if not os.path.isdir(os.path.join(self.disk_directory, dirname)):
             os.makedirs(os.path.join(self.disk_directory, dirname))
 
     def read_data(self, table_name, **kwargs):
+        """read data table in data directory
+
+        :param table_name: table name
+        :param kwargs: multiple keyword arguments in pandas
+        :return: dataframe
+        """
         if table_name == 'XmtStat_CISCO' or table_name == 'ListAction':
             df = pd.read_csv(os.path.join(self.data_directory, table_filename[table_name]), delimiter="|",
                              encoding="ISO-8859-1")
@@ -108,6 +116,14 @@ class dsproject:
         return df
 
     def read_table(self, file_name, keyword, use_schema=False, **kwargs):
+        """read data table in keyword directory
+
+        :param file_name: file name
+        :param keyword: directory name
+        :param use_schema: True[Use schema], False[No use schema]
+        :param kwargs: multiple keyword arguments in pandas
+        :return: dataframe
+        """
         file_path = os.path.join(self.directories[keyword], file_name + '.csv')
         if use_schema:
             args = self.gen_load_args(file_name, keyword)
@@ -119,6 +135,16 @@ class dsproject:
         return df
 
     def write_table(self, table, filename, keyword, gen_schema=True, ds_type=None, **kwargs):
+        """write data table
+
+        :param table: dataframe
+        :param filename: file name
+        :param keyword: directory name
+        :param gen_schema: True[Generate schema], False[No generate schema]
+        :param ds_type: data type
+        :param kwargs: multiple keyword arguments in pandas
+        :return: None
+        """
         file_path = os.path.join(self.directories[keyword], filename + '.csv')
         table.to_csv(file_path, encoding='utf-8', **kwargs)
         if gen_schema:
@@ -137,6 +163,12 @@ class dsproject:
             schema.to_csv(file_path, encoding='utf-8', **kwargs)
 
     def gen_load_args(self, table_name, keyword):
+        """Load schema
+
+        :param table_name: table name
+        :param keyword: directory name
+        :return: schema
+        """
         s = self.read_table(table_name + '_schema', keyword)
         float_columns = s.loc[s['ds_type'].isin(['numeric'])]['column_name'].tolist()
         string_columns = s.loc[s['ds_type'].isin(['id', 'category'])]['column_name'].tolist()
