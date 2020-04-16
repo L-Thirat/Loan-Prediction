@@ -1,23 +1,23 @@
 import pandas as pd
 import os
 import numpy as np
+from datetime import datetime
 
-table_filename = {#'DB_SOC': 'DB_SOC_201510-201610.txt',
-             'DB_SOC' : 'DB_SOC.txt',
-             'ListAction': 'ListAction 201510-201610.txt',
-             'Promise': 'Promise 201510-201610.txt',
-             # 'RiskGrade': 'RiskGrade 201510_201610.txt',
-             # 'XmtStat': 'XmtStat 201510-201606.txt',
-             # 'XmtStat_CISCO': 'XmtStat_CISCO 201607-201610.txt',
-             'EDW_LPM_X_AR_X_CIS': 'EDW_LPM_X_AR_X_CIS.txt',
-             'EDW_SOR_TXN_CC': 'EDW_SOR_TXN_CC.txt',
-             'CST_DIM': 'CST_DIM.txt',
-             'EDW_SUM_CC_AR_BHVR_SCOR': 'EDW_SUM_CC_AR_BHVR_SCOR.txt',
-             'EDW_SOR_CC_AR': 'EDW_SOR_CC_AR.txt',
-             'EDW_SOR_LN_AR': 'EDW_SOR_LN_AR.txt'}
+table_filename = {  # 'DB_SOC': 'DB_SOC_201510-201610.txt',
+    'DB_SOC': 'DB_SOC.txt',
+    'ListAction': 'ListAction 201510-201610.txt',
+    'Promise': 'Promise 201510-201610.txt',
+    # 'RiskGrade': 'RiskGrade 201510_201610.txt',
+    # 'XmtStat': 'XmtStat 201510-201606.txt',
+    # 'XmtStat_CISCO': 'XmtStat_CISCO 201607-201610.txt',
+    'EDW_LPM_X_AR_X_CIS': 'EDW_LPM_X_AR_X_CIS.txt',
+    'EDW_SOR_TXN_CC': 'EDW_SOR_TXN_CC.txt',
+    'CST_DIM': 'CST_DIM.txt',
+    'EDW_SUM_CC_AR_BHVR_SCOR': 'EDW_SUM_CC_AR_BHVR_SCOR.txt',
+    'EDW_SOR_CC_AR': 'EDW_SOR_CC_AR.txt',
+    'EDW_SOR_LN_AR': 'EDW_SOR_LN_AR.txt'}
 
 # training configuration
-from datetime import datetime
 
 ### Default directories ###
 default_class_directory = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
@@ -56,7 +56,8 @@ max_date_test = datetime.strptime(max_date_test, '%Y-%m-%d')
 train_label = datetime.strftime(min_date_train, '%Y%m') + '_' + datetime.strftime(max_date_train, '%Y%m')
 test_label = datetime.strftime(min_date_test, '%Y%m') + '_' + datetime.strftime(max_date_test, '%Y%m')
 
-class dsproject():
+
+class dsproject:
     class_directory = ''
     data_directory = ''
     disk_directory = ''
@@ -86,8 +87,9 @@ class dsproject():
             os.makedirs(os.path.join(self.disk_directory, dirname))
 
     def read_data(self, table_name, **kwargs):
-        if table_name=='XmtStat_CISCO' or table_name=='ListAction': ##Thai string** not finished
-            df = pd.read_csv(os.path.join(self.data_directory, table_filename[table_name]), delimiter="|", encoding="ISO-8859-1")
+        if table_name == 'XmtStat_CISCO' or table_name == 'ListAction':
+            df = pd.read_csv(os.path.join(self.data_directory, table_filename[table_name]), delimiter="|",
+                             encoding="ISO-8859-1")
         elif table_name in ['EDW_LPM_X_AR_X_CIS', 'CST_DIM']:
             df = pd.read_csv(os.path.join(self.data_directory, table_filename[table_name]), delimiter="|", **kwargs)
         elif table_name in ['EDW_SOR_TXN_CC', 'EDW_SUM_CC_AR_BHVR_SCOR', 'EDW_SOR_CC_AR']:
@@ -96,7 +98,8 @@ class dsproject():
             if os.path.isfile(header_path):
                 header = pd.read_csv(header_path, delimiter="|").T
                 header = list(header.index)
-                df = pd.read_csv(os.path.join(self.data_directory, table_filename[table_name]), delimiter="|", header=None, **kwargs)
+                df = pd.read_csv(os.path.join(self.data_directory, table_filename[table_name]), delimiter="|",
+                                 header=None, **kwargs)
                 df.columns = header
             else:
                 df = pd.read_csv(os.path.join(self.data_directory, table_filename[table_name]), delimiter="|", **kwargs)
@@ -128,7 +131,8 @@ class dsproject():
             if not ds_type:
                 ds_type = [0] * len(table.columns)
 
-            schema = pd.DataFrame(np.array([table.columns, table.dtypes, unique_values, ds_type]).T, columns=['column_name', 'data_type', 'unique_values', 'ds_type'])
+            schema = pd.DataFrame(np.array([table.columns, table.dtypes, unique_values, ds_type]).T,
+                                  columns=['column_name', 'data_type', 'unique_values', 'ds_type'])
             file_path = os.path.join(self.directories[keyword], filename + '_schema.csv')
             schema.to_csv(file_path, encoding='utf-8', **kwargs)
 
@@ -139,4 +143,3 @@ class dsproject():
         date_columns = s.loc[s['ds_type'].isin(['date'])]['column_name'].tolist()
         dtype = dict([(c, np.float64) for c in float_columns] + [(c, str) for c in string_columns])
         return {'dtype': dtype, 'index_col': 0, 'parse_dates': date_columns}
-
