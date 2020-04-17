@@ -6,7 +6,7 @@ from sklearn.metrics import classification_report
 import numpy as np
 import pandas as pd
 import pickle
-from DSProject import DSProject
+from archive.src.dsproject import DSProject
 
 dsp = DSProject()
 

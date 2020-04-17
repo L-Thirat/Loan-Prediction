@@ -57,7 +57,6 @@ class DSProject:
     directories = {}
 
     def __init__(self):
-        # self.except_pp_month = except_pp #<<2017
         from dateutil.relativedelta import relativedelta
         self.min_date_dbsoc = min_date_train + relativedelta(months=+2)
         self.max_date_dbsoc = max_date_test
