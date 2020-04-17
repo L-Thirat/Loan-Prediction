@@ -47,7 +47,7 @@ train_label = datetime.strftime(min_date_train, '%Y%m') + '_' + datetime.strftim
 test_label = datetime.strftime(min_date_test, '%Y%m') + '_' + datetime.strftime(max_date_test, '%Y%m')
 
 
-class dsproject:
+class DSProject:
     """Project management
 
     """

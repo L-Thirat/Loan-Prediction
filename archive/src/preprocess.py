@@ -12,9 +12,6 @@ def transform_range_day(df):
     :param df: dataframe
     :return: dataframe transformed
     """
-    # generate dictionary
-    u = df['Range_day'].unique().tolist()
-
     # change Range_day labels to numbers
     # change Group labels to numbers
     range_day_label = df['Range_day'].unique()
@@ -49,18 +46,18 @@ def replace_nan(df):
         return df
 
 
-def parse_dates(series, format=None):
+def parse_dates(series, date_format=None):
     """transform date data
 
     :param series: series data
-    :param format:data format
+    :param date_format:data format
     :rtype format: str, optional
     :return: date series transformed
     """
-    if not format:
+    if not date_format:
         dates = {date: pd.to_datetime(date) for date in series.unique()}
     else:
-        dates = {date: pd.to_datetime(date, format=format) for date in series.unique()}
+        dates = {date: pd.to_datetime(date, format=date_format) for date in series.unique()}
     return series.apply(lambda v: dates[v])
 
 

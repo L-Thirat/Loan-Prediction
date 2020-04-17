@@ -1,10 +1,14 @@
 from sklearn.feature_selection import chi2, f_classif, f_regression
+from sklearn.ensemble import RandomForestClassifier as RFC
+from sklearn.linear_model import LogisticRegression as LR
+from sklearn.cross_validation import train_test_split
+from sklearn.metrics import classification_report
 import numpy as np
 import pandas as pd
 import pickle
-from dsproject import dsproject
+from DSProject import DSProject
 
-dsp = dsproject()
+dsp = DSProject()
 
 train_dataset = 'month_201605_201607_train'
 validate_dataset = 'month_201609_test'
@@ -78,8 +82,8 @@ def test_feature(x, y, func=f_classif):
     :param func: feature selection model
     :return: score table, no important column name
     """
-    f = func(x, y)
-    f_table = pd.DataFrame(np.array([list(x.columns), f[0], f[1]]).T,
+    f_score = func(x, y)
+    f_table = pd.DataFrame(np.array([list(x.columns), f_score[0], f_score[1]]).T,
                            columns=['column_name', 'f_value', 'p_value'])
     f_table['f_value'] = f_table['f_value'].astype(np.float64)
     f_table['p_value'] = f_table['p_value'].astype(np.float64)
@@ -122,12 +126,6 @@ def feature_selection(df, label_column=None, col_to_drop_numeric=None, col_to_dr
     x = pd.concat([df_numeric1, df_cat1_dummy], axis=1)
 
     return x, y, col_to_drop_numeric, col_to_drop_cat
-
-
-from sklearn.ensemble import RandomForestClassifier as RFC
-from sklearn.linear_model import LogisticRegression as LR
-from sklearn.cross_validation import train_test_split
-from sklearn.metrics import classification_report
 
 
 def test_model(model, x_train, x_test, y_train, y_test):
